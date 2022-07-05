@@ -1,0 +1,8 @@
+[requires]
+benchmark/1.5.3@
+fmt/8.0.1
+scnlib/0.4@
+boost/1.76.0@
+
+[generators]
+compiler_args

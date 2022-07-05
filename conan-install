@@ -1,0 +1,14 @@
+#! /bin/sh
+
+set -e
+
+conan install -s compiler.libcxx=libstdc++11 -s build_type=RelWithDebInfo --build missing -if libstd .
+sed -i 's/-lbenchmark -lbenchmark_main/-lbenchmark_main -lbenchmark/' libstd/conanbuildinfo.args
+
+case "$COMPILER" in
+  clang*)
+    conan install -s compiler.libcxx=libc++ -s build_type=RelWithDebInfo --build missing -if libcxx .
+    sed -i 's/-lbenchmark -lbenchmark_main/-lbenchmark_main -lbenchmark/' libcxx/conanbuildinfo.args
+    ;;
+  *) ;;
+esac

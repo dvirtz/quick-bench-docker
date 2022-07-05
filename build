@@ -1,1 +1,1 @@
-$CXX "$@" bench-file.cpp -o bench /usr/local/lib/libbenchmark.a -lpthread
+$CXX bench-file.cpp @conanbuildinfo.args "$@" -o bench

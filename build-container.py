@@ -16,7 +16,7 @@ def concat(x, key, val):
 
 def pushTarget(target):
    pretty(f"Pushing {target} to Docker Hub")
-   subprocess.run(["docker", "push", f"fredtingaud/quick-bench:{target}"])
+   subprocess.run(["docker", "push", f"dvirtz/quick-bench:{target}"])
 
 def testTarget(target):
    pretty(f"Testing {target}")
@@ -25,10 +25,9 @@ def testTarget(target):
    res = subprocess.run(["npm", "run", "system-test"], cwd="../quick-bench-back-end", env=env)
    return res.returncode
 
-def treatTarget(target, force):
-   params = data[target]
+def treatTarget(target, params, force):
    dockerfile = params.pop("docker")
-   command = ["docker", "build", "-t", f"fredtingaud/quick-bench:{target}", "-f", f"{dockerfile}"]
+   command = ["docker", "build", "-t", f"dvirtz/quick-bench:{target}", "-f", f"{dockerfile}"]
    command.extend(["--no-cache"] if force else [])
    command.extend(reduce(lambda x, key: concat(x, key, params[key]), params, []) if params else [])
    command.append(".")
@@ -54,6 +53,9 @@ def main():
 
    args = parser.parse_args()
 
+   with open('containers.json') as f:
+      data = json.load(f)
+
    if args.target:
       targets = args.target
    elif args.all:
@@ -65,16 +67,13 @@ def main():
 
    filtered = set(targets).difference(set(args.skip))
    for target in filtered:
-      retcode = treatTarget(target, args.force)
+      retcode = treatTarget(target, data[target], args.force)
       if retcode == 0:
          pretty(f"Container successfully built for {target}")
          if args.push:
             pushTarget(target)
       else:
          pretty(f"Container couldn't be built for {target} - retcode={retcode}")
-
-with open('containers.json') as f:
-  data = json.load(f)
 
 if __name__ == "__main__":
    main()
